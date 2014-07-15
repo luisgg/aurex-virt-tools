@@ -19,7 +19,7 @@
 # 51 Franklin St, Fifth Floor, Boston MA 02110-1301 USA
 # --------
 
-VM_PREVIX="virt-"
+VM_PREFIX="virt-"
 
 die(){
 	echo "$1" >&2
@@ -41,10 +41,11 @@ VIRT_NAME=""
 OR_STOPPING_RELATED_JOBS=""
 AND_STARTED_RELATED_JOBS=""
 while [ "$1" ]; do
-	vm_test "$1" || die "\"$V\" is not a valid virtual machine name"
+	vm_test "$1" || die "\"$1\" is not a valid virtual machine name"
 	UPSTART_JOB="${VM_PREFIX}${1}"
 	if [ -z "$VIRT_NAME" ] ; then
-		VIRT_NAME="$UPSTART_JOB"
+		VIRT_MACHINE="$1"
+		VIRT_JOB="$UPSTART_JOB"
 	else
 		[ -r "/etc/init/${UPSTART_JOB}.conf" ] || die "There is not an upstart job named \"$UPSTART_JOB\""
 		AND_STARTED_RELATED_JOBS="$AND_STARTED_RELATED_JOBS and started $UPSTART_JOB\n        "
@@ -53,6 +54,6 @@ while [ "$1" ]; do
 	shift
 done
 
-sed -e "s%_@_AND_STARTED_RELATED_JOBS_@_%$AND_STARTED_RELATED_JOBS%g;s%_@_OR_STOPPING_RELATED_JOBS_@_%$OR_STOPPING_RELATED_JOBS%g;s%_@_VIRT_NAME_@_%$VIRT_NAME%g" /usr/share/virt-upstart-manager/virt-job-conf.template
+sed -e "s%_@_AND_STARTED_RELATED_JOBS_@_%$AND_STARTED_RELATED_JOBS%g;s%_@_OR_STOPPING_RELATED_JOBS_@_%$OR_STOPPING_RELATED_JOBS%g;s%_@_VIRT_MACHINE_@_%$VIRT_MACHINE%g;s%_@_VIRT_JOB_@_%$VIRT_JOB%g" /usr/share/virt-upstart-manager/virt-job-conf.template
 exit 0
 

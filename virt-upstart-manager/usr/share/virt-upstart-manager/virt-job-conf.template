@@ -1,3 +1,9 @@
+# _@_VIRT_JOB_@_
+#
+# Upstart job configuration file for virtual machine '_@_VIRT_NAME_@_'
+# This file was generated with virt-upstart-create
+
+description     "_@_VIRT_NAME_@_ Virtual Machine"
 
 start on (
 	started libvirt-bin
@@ -7,12 +13,12 @@ stop on (
 	stopping libvirt-bin
 	_@_OR_STOPPING_RELATED_JOBS_@_)
 
-env VIRT_JOB="_@_VIRT_NAME_@_"
+env VIRT_MACHINE="_@_VIRT_NAME_@_"
 env VIRT_WAIT=5
 
 pre-start script
 	. /usr/share/virt-upstart-manager/upstart-common
-	vm_start "$VIRT_JOB" || exit 1
+	vm_start "$VIRT_MACHINE" || exit 1
 	while [ $VIRT_WAIT -gt 0 ] ; do
 		sleep 1
 		VIRT_WAIT=$(($VIRT_WAIT -1))
@@ -21,7 +27,7 @@ end script
 
 script
 	. /usr/share/virt-upstart-manager/upstart-common
-	while vm_is_running "$VIRT_JOB"; do
+	while vm_is_running "$VIRT_MACHINE"; do
 		sleep 5
 	done
 
@@ -29,6 +35,6 @@ end script
 
 pre-stop script
 	. /usr/share/virt-upstart-manager/upstart-common
-	vm_stop "$VIRT_JOB"
+	vm_stop "$VIRT_MACHINE"
 end script
 
