@@ -1,0 +1,34 @@
+
+start on (
+	started libvirt-bin
+	_@_AND_STARTED_RELATED_JOBS_@_)
+
+stop on (
+	stopping libvirt-bin
+	_@_OR_STOPPING_RELATED_JOBS_@_)
+
+env VIRT_JOB="_@_VIRT_NAME_@_"
+env VIRT_WAIT=5
+
+pre-start script
+	. /usr/share/virt-upstart-manager/upstart-common
+	vm_start "$VIRT_JOB" || exit 1
+	while [ $VIRT_WAIT -gt 0 ] ; do
+		sleep 1
+		VIRT_WAIT=$(($VIRT_WAIT -1))
+	done
+end script
+
+script
+	. /usr/share/virt-upstart-manager/upstart-common
+	while vm_is_running "$VIRT_JOB"; do
+		sleep 5
+	done
+
+end script
+
+pre-stop script
+	. /usr/share/virt-upstart-manager/upstart-common
+	vm_stop "$VIRT_JOB"
+end script
+

@@ -1,0 +1,79 @@
+# -------
+# File:        upstart-common
+# Description: common funcs for libvirt upstart jobs
+# Author:      Luis Antonio Garcia Gisbert <luisgg@gmail.com> 
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along 
+# with this program; if not, write to the Free Software Foundation, Inc., 
+# 51 Franklin St, Fifth Floor, Boston MA 02110-1301 USA
+# --------
+
+# global vars
+VM_START_WAIT_TIME=10
+VM_STOP_WAIT_TIME=10
+
+vm_is_running(){
+	LANG=C virsh list |grep " $1 " |grep -q " running$" || return 1
+	return 0
+}
+
+vm_start(){
+	VM_NAME="$1"
+	if ! vm_is_running "$VM_NAME"; then
+		sleep 2
+		virsh start "$VM_NAME"
+		sleep 4
+		WAIT_TIME=$VM_START_WAIT_TIME
+		START_OK=""
+		while [ $WAIT_TIME -gt 0 ] ; do
+			if vm_is_running "$VM_NAME" ; then
+				START_OK="Y"
+				break
+			fi
+			sleep 1
+			WAIT_TIME=$(($WAIT_TIME - 1))
+		done
+		[ "$START_OK" ] || return 1
+	fi
+	return 0
+}
+
+vm_stop(){
+	VM_NAME="$1"
+	if vm_is_running "$VM_NAME"; then
+		STOP_OK=""
+		NUM_TRIES=0
+		while [ -z "$STOP_OK" ] ; do
+			if [ $NUM_TRIES -eq 0 ] ; then
+				# try to shutdown first
+				virsh shutdown "$VM_NAME" || true
+				NUM_TRIES=1
+			else
+				virsh destroy "$VM_NAME" || true
+				STOP_OK="Y"
+			fi
+			WAIT_TIME=$VM_STOP_WAIT_TIME
+			while [ $WAIT_TIME -gt 0 ] ; do
+				if ! vm_is_running "$VM_NAME" ; then
+					STOP_OK="Y"
+					break
+				fi
+				sleep 1
+				WAIT_TIME=$(($WAIT_TIME - 1))
+			done
+		done
+	fi
+	return 0
+}
+
+

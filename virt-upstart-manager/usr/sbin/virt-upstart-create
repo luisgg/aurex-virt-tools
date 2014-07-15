@@ -1,0 +1,58 @@
+#!/bin/sh
+# -------
+# File:        virt-upstart-create
+# Description: Create an upstart job for a given virtual machine
+# Author:      Luis Antonio Garcia Gisbert <luisgg@gmail.com> 
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along 
+# with this program; if not, write to the Free Software Foundation, Inc., 
+# 51 Franklin St, Fifth Floor, Boston MA 02110-1301 USA
+# --------
+
+VM_PREVIX="virt-"
+
+die(){
+	echo "$1" >&2
+	exit 1
+}
+
+usage(){
+	die "Usage: $(basename "$0") VM_NAME [VM_DEPENDS_LIST ...]"
+}
+
+vm_test(){
+	virsh list --all |grep -q " $1 " || return 1
+	return 0
+}
+
+[ "$1" ] || usage
+
+VIRT_NAME=""
+OR_STOPPING_RELATED_JOBS=""
+AND_STARTED_RELATED_JOBS=""
+while [ "$1" ]; do
+	vm_test "$1" || die "\"$V\" is not a valid virtual machine name"
+	UPSTART_JOB="${VM_PREFIX}${1}"
+	if [ -z "$VIRT_NAME" ] ; then
+		VIRT_NAME="$UPSTART_JOB"
+	else
+		[ -r "/etc/init/${UPSTART_JOB}.conf" ] || die "There is not an upstart job named \"$UPSTART_JOB\""
+		AND_STARTED_RELATED_JOBS="$AND_STARTED_RELATED_JOBS and started $UPSTART_JOB\n        "
+		OR_STOPPING_RELATED_JOBS="$OR_STOPPING_RELATED_JOBS or stopping $UPSTART_JOB\n        "
+	fi
+	shift
+done
+
+sed -e "s%_@_AND_STARTED_RELATED_JOBS_@_%$AND_STARTED_RELATED_JOBS%g;s%_@_OR_STOPPING_RELATED_JOBS_@_%$OR_STOPPING_RELATED_JOBS%g;s%_@_VIRT_NAME_@_%$VIRT_NAME%g" /usr/share/virt-upstart-manager/virt-job-conf.template
+exit 0
+
