@@ -18,11 +18,7 @@ env VIRT_WAIT=5
 
 pre-start script
 	. /usr/share/virt-upstart-manager/upstart-common
-	vm_start "$VIRT_MACHINE" || exit 1
-	while [ $VIRT_WAIT -gt 0 ] ; do
-		sleep 1
-		VIRT_WAIT=$(($VIRT_WAIT -1))
-	done
+	vm_start "$VIRT_MACHINE" $VIRT_WAIT || exit 1
 end script
 
 script

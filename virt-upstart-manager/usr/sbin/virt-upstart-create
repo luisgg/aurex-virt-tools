@@ -21,6 +21,8 @@
 
 VM_PREFIX="virt-"
 
+. /usr/share/virt-upstart-manager/upstart-common
+
 die(){
 	echo "$1" >&2
 	exit 1
@@ -30,30 +32,29 @@ usage(){
 	die "Usage: $(basename "$0") VM_NAME [VM_DEPENDS_LIST ...]"
 }
 
-vm_test(){
-	virsh list --all |grep -q " $1 " || return 1
-	return 0
-}
-
 [ "$1" ] || usage
 
 VIRT_NAME=""
 OR_STOPPING_RELATED_JOBS=""
 AND_STARTED_RELATED_JOBS=""
 while [ "$1" ]; do
-	vm_test "$1" || die "\"$1\" is not a valid virtual machine name"
+	vm_test "$1" || die "Error: \"$1\" is not a valid virtual machine name"
 	UPSTART_JOB="${VM_PREFIX}${1}"
 	if [ -z "$VIRT_NAME" ] ; then
 		VIRT_MACHINE="$1"
 		VIRT_JOB="$UPSTART_JOB"
 	else
-		[ -r "/etc/init/${UPSTART_JOB}.conf" ] || die "There is not an upstart job named \"$UPSTART_JOB\""
+		[ -r "/etc/init/${UPSTART_JOB}.conf" ] || die "Error: There is not an upstart job named \"$UPSTART_JOB\""
 		AND_STARTED_RELATED_JOBS="$AND_STARTED_RELATED_JOBS and started $UPSTART_JOB\n        "
 		OR_STOPPING_RELATED_JOBS="$OR_STOPPING_RELATED_JOBS or stopping $UPSTART_JOB\n        "
 	fi
 	shift
 done
+TARGET_FILE="/etc/init/${VIRT_JOB}.conf"
+[ ! -r "$TARGET_FILE" ] || die "Error: \"$TARGET_FILE\" already exists. Exiting"
 
-sed -e "s%_@_AND_STARTED_RELATED_JOBS_@_%$AND_STARTED_RELATED_JOBS%g;s%_@_OR_STOPPING_RELATED_JOBS_@_%$OR_STOPPING_RELATED_JOBS%g;s%_@_VIRT_MACHINE_@_%$VIRT_MACHINE%g;s%_@_VIRT_JOB_@_%$VIRT_JOB%g" /usr/share/virt-upstart-manager/virt-job-conf.template
+sed -e "s%_@_AND_STARTED_RELATED_JOBS_@_%$AND_STARTED_RELATED_JOBS%g;s%_@_OR_STOPPING_RELATED_JOBS_@_%$OR_STOPPING_RELATED_JOBS%g;s%_@_VIRT_MACHINE_@_%$VIRT_MACHINE%g;s%_@_VIRT_JOB_@_%$VIRT_JOB%g" /usr/share/virt-upstart-manager/virt-job-conf.template > $TARGET_FILE || die "Error generating \"$TARGET_FILE\""
+
+echo "\"$TARGET_FILE\" successfully generated"
 exit 0
 
