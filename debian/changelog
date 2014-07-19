@@ -1,3 +1,10 @@
+aurex-virt-tools (0.3) precise; urgency=low
+
+  * Use inotifywait against qemu monitor socket to detect when the virtual
+    machine process stops
+
+ -- Luis Antonio Garcia Gisbert <luisgg@gmail.com>  Sat, 19 Jul 2014 19:10:44 +0200
+
 aurex-virt-tools (0.2) precise; urgency=low
 
   * Some fixes

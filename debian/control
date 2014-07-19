@@ -13,7 +13,7 @@ Description: Collection of utilities to manage Virtual Machines
 
 Package: virt-upstart-manager
 Architecture: all
-Depends: ${misc:Depends}, upstart, libvirt-bin
+Depends: ${misc:Depends}, upstart, libvirt-bin, inotify-tools
 Description: generate upstart jobs to start/stop virtual machines
  The package installs a scruipt and templates to generate upstart
  jobs to automatically start and stop Virtual Machines

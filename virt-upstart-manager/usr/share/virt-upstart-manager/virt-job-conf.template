@@ -23,10 +23,7 @@ end script
 
 script
 	. /usr/share/virt-upstart-manager/upstart-common
-	while vm_is_running "$VIRT_MACHINE"; do
-		sleep 5
-	done
-
+	vm_wait_stop "$VIRT_MACHINE"
 end script
 
 pre-stop script
