@@ -1,3 +1,9 @@
+aurex-virt-tools (0.5) precise; urgency=low
+
+  * Template fixed
+
+ -- Luis Antonio Garcia Gisbert <luisgg@gmail.com>  Mon, 21 Jul 2014 06:47:35 +0200
+
 aurex-virt-tools (0.4) precise; urgency=low
 
   * Added /etc/default/virt-upstart configuration file

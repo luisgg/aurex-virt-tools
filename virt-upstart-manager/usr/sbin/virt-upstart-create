@@ -38,7 +38,7 @@ VIRT_MACHINE=""
 OR_STOPPING_RELATED_JOBS=""
 AND_STARTED_RELATED_JOBS=""
 DEFAULT_FILE="/etc/default/virt-upstart"
-if [ -r "$DEFAULT_FILE" ] : then
+if [ -r "$DEFAULT_FILE" ] ; then
 	. "$DEFAULT_FILE"
 	for j in $STARTED_RELATED_JOBS ; do
 		AND_STARTED_RELATED_JOBS="and started $j\n"
@@ -62,9 +62,14 @@ while [ "$1" ]; do
 	shift
 done
 TARGET_FILE="/etc/init/${VIRT_JOB}.conf"
+INITD_FILE="/etc/init.d/${VIRT_JOB}"
 [ ! -r "$TARGET_FILE" ] || die "Error: \"$TARGET_FILE\" already exists. Exiting"
 
 sed -e "s%_@_AND_STARTED_RELATED_JOBS_@_%$AND_STARTED_RELATED_JOBS%g;s%_@_OR_STOPPING_RELATED_JOBS_@_%$OR_STOPPING_RELATED_JOBS%g;s%_@_VIRT_MACHINE_@_%$VIRT_MACHINE%g;s%_@_VIRT_JOB_@_%$VIRT_JOB%g" /usr/share/virt-upstart-manager/virt-job-conf.template > $TARGET_FILE || die "Error generating \"$TARGET_FILE\""
+if [ "$TARGET_FILE" ] ; then
+	rm -f "$INITD_FILE"
+	ln -s /lib/init/upstart-job "$INITD_FILE"
+fi
 
 echo "\"$TARGET_FILE\" successfully generated"
 exit 0

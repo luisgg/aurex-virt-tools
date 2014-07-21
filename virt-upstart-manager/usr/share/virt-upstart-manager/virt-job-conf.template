@@ -3,7 +3,7 @@
 # Upstart job configuration file for virtual machine '_@_VIRT_NAME_@_'
 # This file was generated with virt-upstart-create
 
-description     "_@_VIRT_NAME_@_ Virtual Machine"
+description     "_@_VIRT_MACHINE_@_ Virtual Machine"
 
 start on (
 	started libvirt-bin
@@ -13,7 +13,7 @@ stop on (
 	stopping libvirt-bin
 	_@_OR_STOPPING_RELATED_JOBS_@_)
 
-env VIRT_MACHINE="_@_VIRT_NAME_@_"
+env VIRT_MACHINE="_@_VIRT_MACHINE_@_"
 env VIRT_WAIT=5
 
 pre-start script
