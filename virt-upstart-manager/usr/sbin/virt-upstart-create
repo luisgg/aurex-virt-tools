@@ -34,19 +34,30 @@ usage(){
 
 [ "$1" ] || usage
 
-VIRT_NAME=""
+VIRT_MACHINE=""
 OR_STOPPING_RELATED_JOBS=""
 AND_STARTED_RELATED_JOBS=""
+DEFAULT_FILE="/etc/default/virt-upstart"
+if [ -r "$DEFAULT_FILE" ] : then
+	. "$DEFAULT_FILE"
+	for j in $STARTED_RELATED_JOBS ; do
+		AND_STARTED_RELATED_JOBS="and started $j\n"
+	done
+	for j in $STOPPING_RELATED_JOBS ; do
+		OR_STOPPING_RELATED_JOBS="or stopping $j\n"
+	done
+fi
+
 while [ "$1" ]; do
 	vm_test "$1" || die "Error: \"$1\" is not a valid virtual machine name"
 	UPSTART_JOB="${VM_PREFIX}${1}"
-	if [ -z "$VIRT_NAME" ] ; then
+	if [ -z "$VIRT_MACHINE" ] ; then
 		VIRT_MACHINE="$1"
 		VIRT_JOB="$UPSTART_JOB"
 	else
 		[ -r "/etc/init/${UPSTART_JOB}.conf" ] || die "Error: There is not an upstart job named \"$UPSTART_JOB\""
 		AND_STARTED_RELATED_JOBS="$AND_STARTED_RELATED_JOBS and started $UPSTART_JOB\n        "
-		OR_STOPPING_RELATED_JOBS="$OR_STOPPING_RELATED_JOBS or stopping $UPSTART_JOB\n        "
+#		OR_STOPPING_RELATED_JOBS="$OR_STOPPING_RELATED_JOBS or stopping $UPSTART_JOB\n        "
 	fi
 	shift
 done

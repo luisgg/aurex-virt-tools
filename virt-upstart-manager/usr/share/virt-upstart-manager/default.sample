@@ -1,0 +1,5 @@
+# set default values for STARTED_RELATED_JOBS and STOPPING_RELATED_JOBS
+#
+# STARTED_RELATED_JOBS="virt-pfsense virt-mirror-ldap"
+# STOPPING_RELATED_JOBS=""
+
