@@ -1,6 +1,6 @@
 # _@_VIRT_JOB_@_
 #
-# Upstart job configuration file for virtual machine '_@_VIRT_NAME_@_'
+# Upstart job configuration file for virtual machine '_@_VIRT_MACHINE_@_'
 # This file was generated with virt-upstart-create
 
 description     "_@_VIRT_MACHINE_@_ Virtual Machine"
